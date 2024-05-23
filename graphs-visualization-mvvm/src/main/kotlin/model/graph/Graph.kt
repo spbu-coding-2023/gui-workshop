@@ -6,4 +6,6 @@ interface Graph<V, E> {
 
     fun addVertex(v: V): Vertex<V>
     fun addEdge(u: V, v: V, e: E): Edge<E, V>
+
+    fun getVertexDegree(v: Vertex<V>): Int
 }

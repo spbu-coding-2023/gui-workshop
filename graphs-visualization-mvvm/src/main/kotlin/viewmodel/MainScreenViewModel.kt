@@ -6,7 +6,7 @@ import model.graph.Graph
 import viewmodel.graph.GraphViewModel
 import viewmodel.graph.RepresentationStrategy
 
-class MainScreenViewModel<V, E>(graph: Graph<V, E>, private val representationStrategy: RepresentationStrategy,) {
+class MainScreenViewModel<V, E>(private val graph: Graph<V, E>, private val representationStrategy: RepresentationStrategy<V, E>,) {
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
@@ -20,7 +20,7 @@ class MainScreenViewModel<V, E>(graph: Graph<V, E>, private val representationSt
         graphViewModel.vertices.forEach{ v -> v.color = Color.Gray}
     }
 
-    fun setVerticesColor() {
-        representationStrategy.highlight(graphViewModel.vertices)
+    suspend fun setVerticesColor() {
+        representationStrategy.highlight(graphViewModel.vertices, graph)
     }
 }

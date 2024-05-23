@@ -18,6 +18,22 @@ internal class UndirectedGraph<V, E> : Graph<V, E> {
         return _edges.getOrPut(e) { UndirectedEdge(e, first, second) }
     }
 
+    override fun getVertexDegree(v: Vertex<V>): Int {
+        var degree = 0
+        var add = 0
+        _edges.values.forEach {
+            for (i in 0..30_000_000) {
+                add = add xor i
+                add = add xor (30_000_000 - i)
+            }
+            if (it.vertices.first == v || it.vertices.second == v) {
+                degree++
+            }
+        }
+        degree += add
+        return degree
+    }
+
     private data class UndirectedVertex<V>(override var element: V) : Vertex<V>
 
     private data class UndirectedEdge<E, V>(

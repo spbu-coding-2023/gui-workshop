@@ -2,13 +2,15 @@ package viewmodel.graph
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.*
+import model.graph.Graph
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 import kotlin.random.Random
 
-class CircularPlacementStrategy : RepresentationStrategy {
-    override fun <V> place(width: Double, height: Double, vertices: Collection<VertexViewModel<V>>) {
+class CircularPlacementStrategy<V, E> : RepresentationStrategy<V, E> {
+    override fun place(width: Double, height: Double, vertices: Collection<VertexViewModel<V>>) {
         if (vertices.isEmpty()) {
             println("CircularPlacementStrategy.place: there is nothing to place 👐🏻")
             return
@@ -33,11 +35,27 @@ class CircularPlacementStrategy : RepresentationStrategy {
             }
     }
 
-    override fun <V> highlight(vertices: Collection<VertexViewModel<V>>) {
-        vertices
-            .onEach {
-                it.color = if (Random.nextBoolean()) Color.Green else Color.Blue
-            }
+    override suspend fun highlight(vertices: Collection<VertexViewModel<V>>, graph: Graph<V, E>) {
+        coroutineScope {
+            vertices
+                .onEach { vertexViewModel ->
+                    launch {
+                        println("Count degree on ${Thread.currentThread().name}")
+
+                        val degree = graph.getVertexDegree(vertexViewModel.v)
+                        val color = if (degree > 3)
+                            Color.Red
+                        else if (Random.nextBoolean())
+                            Color.Green
+                        else
+                            Color.Blue
+                        withContext(Dispatchers.Main) {
+                            vertexViewModel.color = color
+                            println("change color on ${Thread.currentThread().name}")
+                        }
+                    }
+                }
+        }
     }
 
     private fun Pair<Double, Double>.rotate(pivot: Pair<Double, Double>, angle: Double): Pair<Double, Double> {

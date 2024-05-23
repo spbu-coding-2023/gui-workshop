@@ -8,20 +8,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.sp
-import model.graph.Graph
-import org.jetbrains.skia.impl.Stats.enabled
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import view.graph.GraphView
 import viewmodel.MainScreenViewModel
-import viewmodel.graph.CircularPlacementStrategy
-import viewmodel.graph.GraphViewModel
 
 @Composable
 fun <V, E> MainScreen(viewModel: MainScreenViewModel<V, E>) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        val scope = rememberCoroutineScope { Dispatchers.Default }
         Column(modifier = Modifier.width(370.dp)) {
             Row {
                 Checkbox(checked = viewModel.showVerticesLabels.value, onCheckedChange = {
@@ -44,7 +44,11 @@ fun <V, E> MainScreen(viewModel: MainScreenViewModel<V, E>) {
                 )
             }
             Button(
-                onClick = viewModel::setVerticesColor,
+                onClick = {
+                    scope.launch {
+                        viewModel.setVerticesColor()
+                    }
+                },
                 enabled = true,
             ) {
                 Text(
